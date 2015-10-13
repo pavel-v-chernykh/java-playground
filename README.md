@@ -1,2 +1,3 @@
 # java_playground
-Occasional (un)useful java experiments
+
+Occasional use(ful)less java experiments
