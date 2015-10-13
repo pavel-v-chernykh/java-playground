@@ -1,9 +1,9 @@
 package com.example.playground.pattern.matching;
 
-import com.sun.istack.internal.NotNull;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
