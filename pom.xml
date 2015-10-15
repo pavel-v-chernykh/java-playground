@@ -12,6 +12,7 @@
 
     <modules>
         <module>pattern-matching</module>
+        <module>result</module>
     </modules>
 
     <properties>

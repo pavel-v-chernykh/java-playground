@@ -1,13 +1,14 @@
 package com.example.playground.result;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.function.Function;
 
-@Getter
 @Setter(AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Result<R, E> {
     private R result;
@@ -19,6 +20,14 @@ public class Result<R, E> {
 
     public static <R, E> Result<R, E> error(@NotNull E error) {
         return new Result<>(null, error);
+    }
+
+    public Optional<R> getResult() {
+        return Optional.ofNullable(result);
+    }
+
+    public Optional<E> getError() {
+        return Optional.ofNullable(error);
     }
 
     public boolean isError() {
