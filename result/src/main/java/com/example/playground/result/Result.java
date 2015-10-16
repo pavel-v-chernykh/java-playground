@@ -31,11 +31,11 @@ public class Result<R, E> {
     }
 
     public boolean isError() {
-        return error != null;
+        return error != null && result == null;
     }
 
     public boolean isResult() {
-        return result == null;
+        return result != null && error == null;
     }
 
     public <U> Result<U, E> flatMap(@NotNull Function<? super R, Result<U, E>> mapper) {
