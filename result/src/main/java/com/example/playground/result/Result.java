@@ -42,8 +42,16 @@ public class Result<R, E> {
         return isResult() ? mapper.apply(result) : error(error);
     }
 
+    public <F> Result<R, F> flatMapError(@NotNull Function<? super E, Result<R, F>> mapper) {
+        return isError() ? mapper.apply(error) : result(result);
+    }
+
     public <U> Result<U, E> map(@NotNull Function<? super R, ? extends U> mapper) {
         return flatMap(r -> result(mapper.apply(r)));
+    }
+
+    public <F> Result<R, F> mapError(@NotNull Function<? super E, ? extends F> mapper) {
+        return flatMapError(e -> error(mapper.apply(e)));
     }
 
     public <U> Result<U, E> andElse(Result<U, E> other) {

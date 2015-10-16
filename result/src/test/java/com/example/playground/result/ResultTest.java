@@ -49,4 +49,26 @@ public class ResultTest {
     public void isResultShouldReturnTrueIfConstructedWithResult() {
         assertThat(result(1).isResult(), is(true));
     }
+
+    @Test
+    public void flatMapShouldReturnMapperResultOrOriginalError() {
+        assertThat(result(1).flatMap(i -> result(i * 2)).getResult(), is(Optional.of(2)));
+        assertThat(result(1).flatMap(i -> error(i * 2)).getError(), is(Optional.of(2)));
+    }
+
+    @Test
+    public void flatMapErrorShouldReturnMapperErrorOrOriginalResult() {
+        assertThat(error(1).flatMapError(i -> result(i * 2)).getResult(), is(Optional.of(2)));
+        assertThat(error(1).flatMapError(i -> error(i * 2)).getError(), is(Optional.of(2)));
+    }
+
+    @Test
+    public void mapShouldReturnMapperReturnValuePackedIntoResult() {
+        assertThat(result(1).map(i -> i * 2).getResult(), is(Optional.of(2)));
+    }
+
+    @Test
+    public void mapErrorShouldReturnMapperReturnValuePackedIntoError() {
+        assertThat(error(1).mapError(i -> i * 2).getError(), is(Optional.of(2)));
+    }
 }
