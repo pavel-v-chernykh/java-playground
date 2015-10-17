@@ -1,8 +1,6 @@
 package com.example.playground.result;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
@@ -10,6 +8,8 @@ import java.util.function.Function;
 
 @Setter(AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode
+@ToString(doNotUseGetters = true)
 public class Result<R, E> {
     private R result;
     private E error;
