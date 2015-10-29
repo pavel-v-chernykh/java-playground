@@ -13,6 +13,7 @@
     <modules>
         <module>pattern-matching</module>
         <module>result</module>
+        <module>monadic-parser-combinators</module>
     </modules>
 
     <properties>
