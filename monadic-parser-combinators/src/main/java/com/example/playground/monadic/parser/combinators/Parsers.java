@@ -13,4 +13,8 @@ public final class Parsers {
     public static <T, E, I, S extends BaseStream<I, S>> Parser<T, E, I, S> result(T result) {
         return input -> Result.result(parserResult(result, input));
     }
+
+    public static <T, E, I, S extends BaseStream<I, S>> Parser<T, E, I, S> error(E error) {
+        return input -> Result.error(error);
+    }
 }
