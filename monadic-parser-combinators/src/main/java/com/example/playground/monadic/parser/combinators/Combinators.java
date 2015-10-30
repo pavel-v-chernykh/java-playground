@@ -19,4 +19,9 @@ public final class Combinators {
         return Combinators.<T, T, E, T, S>bind(Parsers.item(error), t1 ->
                 Optional.of(t1).filter(p).map(Parsers::<T, E, T, S>result).orElse(Parsers.error(error)));
     }
+
+    public static <T1, T2, E, I, S extends BaseStream<I, S>> Parser<Pair<T1, T2>, E, I, S> seq(Parser<T1, E, I, S> p1,
+                                                                                               Parser<T2, E, I, S> p2) {
+        return Combinators.bind(p1, t1 -> Combinators.bind(p2, t2 -> Parsers.result(Pair.pair(t1, t2))));
+    }
 }
