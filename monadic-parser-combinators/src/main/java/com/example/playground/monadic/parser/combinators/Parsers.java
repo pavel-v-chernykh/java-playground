@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.BaseStream;
+import java.util.stream.IntStream;
 
 import static com.example.playground.monadic.parser.combinators.ParserResult.parserResult;
 import static java.util.function.Predicate.isEqual;
@@ -51,5 +52,9 @@ public final class Parsers {
 
     public static <T, E, S extends BaseStream<T, S>> Parser<T, E, T, S> exact(T item, E error) {
         return Parsers.sat(isEqual(item), error);
+    }
+
+    public static <E> Parser<Integer, E, Integer, IntStream> digit(E error) {
+        return Parsers.sat(Character::isDigit, error);
     }
 }
