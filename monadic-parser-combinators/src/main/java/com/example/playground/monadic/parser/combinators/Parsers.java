@@ -61,4 +61,8 @@ public final class Parsers {
     public static <E> Parser<Integer, E, Integer, IntStream> lower(E error) {
         return Parsers.sat(Character::isLowerCase, error);
     }
+
+    public static <E> Parser<Integer, E, Integer, IntStream> upper(E error) {
+        return Parsers.sat(Character::isUpperCase, error);
+    }
 }
