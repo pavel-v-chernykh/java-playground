@@ -57,4 +57,8 @@ public final class Parsers {
     public static <E> Parser<Integer, E, Integer, IntStream> digit(E error) {
         return Parsers.sat(Character::isDigit, error);
     }
+
+    public static <E> Parser<Integer, E, Integer, IntStream> lower(E error) {
+        return Parsers.sat(Character::isLowerCase, error);
+    }
 }
