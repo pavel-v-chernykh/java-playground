@@ -11,7 +11,9 @@ import java.util.function.Predicate;
 import java.util.stream.BaseStream;
 import java.util.stream.IntStream;
 
+import static com.example.playground.monadic.parser.combinators.ParserError.parserError;
 import static com.example.playground.monadic.parser.combinators.ParserResult.parserResult;
+import static java.lang.String.format;
 import static java.util.function.Predicate.isEqual;
 import static java.util.stream.Stream.generate;
 
@@ -50,19 +52,19 @@ public final class Parsers {
         return Parsers.bind(p1, t1 -> Parsers.bind(p2, t2 -> Parsers.result(Pair.pair(t1, t2))));
     }
 
-    public static <T, S extends BaseStream<T, S>> Parser<T, T, S> exact(T item, ParserError error) {
-        return Parsers.sat(isEqual(item), error);
+    public static <T, S extends BaseStream<T, S>> Parser<T, T, S> exact(T item) {
+        return Parsers.sat(isEqual(item), parserError(format("Should be equal to '%s'", item)));
     }
 
-    public static Parser<Integer, Integer, IntStream> digit(ParserError error) {
-        return Parsers.sat(Character::isDigit, error);
+    public static Parser<Integer, Integer, IntStream> digit() {
+        return Parsers.sat(Character::isDigit, parserError("Should be digit"));
     }
 
-    public static Parser<Integer, Integer, IntStream> lower(ParserError error) {
-        return Parsers.sat(Character::isLowerCase, error);
+    public static Parser<Integer, Integer, IntStream> lower() {
+        return Parsers.sat(Character::isLowerCase, parserError("Should be in lower case"));
     }
 
-    public static Parser<Integer, Integer, IntStream> upper(ParserError error) {
-        return Parsers.sat(Character::isUpperCase, error);
+    public static Parser<Integer, Integer, IntStream> upper() {
+        return Parsers.sat(Character::isUpperCase, parserError("Should be in upper case"));
     }
 }
