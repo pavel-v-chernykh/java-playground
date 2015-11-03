@@ -29,7 +29,7 @@ public final class Parsers {
     @SuppressWarnings("unchecked")
     public static <T, S extends BaseStream<T, S>> Parser<T, T, S> item() {
         return input -> Optional.of(input.iterator())
-                .filter(Helpers.iteratorHasNext())
+                .filter(Iterator::hasNext)
                 .map(i -> parserResultList(i.next(), (S) generate(i::next)))
                 .orElse(emptyList());
     }
@@ -66,10 +66,6 @@ public final class Parsers {
     private static class Helpers {
         private static <T> Predicate<List<T>> nonEmptyList() {
             return ts -> !ts.isEmpty();
-        }
-
-        private static Predicate<Iterator> iteratorHasNext() {
-            return Iterator::hasNext;
         }
     }
 }
