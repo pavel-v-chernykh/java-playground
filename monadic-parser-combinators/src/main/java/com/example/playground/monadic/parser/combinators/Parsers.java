@@ -3,69 +3,85 @@ package com.example.playground.monadic.parser.combinators;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.BaseStream;
-import java.util.stream.IntStream;
 
 import static com.example.playground.monadic.parser.combinators.ParserResult.parserResultList;
 import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.isEqual;
-import static java.util.stream.Stream.generate;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Parsers {
-    public static <T, I, S extends BaseStream<I, S>> Parser<T, I, S> result(T result) {
+    public static Parser result(String result) {
         return input -> parserResultList(result, input);
     }
 
-    public static <T, I, S extends BaseStream<I, S>> Parser<T, I, S> zero() {
+    public static Parser zero() {
         return input -> emptyList();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, S extends BaseStream<T, S>> Parser<T, T, S> item() {
-        return input -> Optional.of(input.iterator())
-                .filter(Iterator::hasNext)
-                .map(i -> parserResultList(i.next(), (S) generate(i::next)))
-                .orElse(emptyList());
+    public static Parser item() {
+        return input ->
+                Optional.of(input)
+                        .filter(Predicates.nonEmptyString())
+                        .map(i -> parserResultList(i.substring(0, 1), i.substring(1, i.length())))
+                        .orElse(emptyList());
     }
 
-    public static <T1, T2, I, S extends BaseStream<I, S>> Parser<T2, I, S> bind(Parser<T1, I, S> parser,
-                                                                                Function<T1, Parser<T2, I, S>> f) {
-        return input -> Optional.of(parser.parse(input))
-                .filter(Helpers.nonEmptyList())
-                .map(parserResults -> f.apply(parserResults.get(0).getResult()).parse(parserResults.get(0).getStream()))
-                .orElse(emptyList());
+    public static Parser bind(Parser parser, Function<String, Parser> f) {
+        return input ->
+                Optional.of(parser.parse(input))
+                        .filter(Predicates.nonEmptyList())
+                        .map(results -> f.apply(results.get(0).getResult()).parse(results.get(0).getStream()))
+                        .orElse(emptyList());
     }
 
-    public static <T, S extends BaseStream<T, S>> Parser<T, T, S> sat(Predicate<T> p) {
-        return Parsers.<T, T, T, S>bind(Parsers.item(), t ->
-                Optional.of(t).filter(p).map(Parsers::<T, T, S>result).orElse(Parsers.zero()));
+    public static Parser sat(Predicate<String> p) {
+        return Parsers.bind(Parsers.item(), t ->
+                Optional.of(t)
+                        .filter(p)
+                        .map(Parsers::result)
+                        .orElseGet(Parsers::zero));
     }
 
-    public static <T, S extends BaseStream<T, S>> Parser<T, T, S> exact(T item) {
+    public static Parser exact(String item) {
         return Parsers.sat(isEqual(item));
     }
 
-    public static Parser<Integer, Integer, IntStream> digit() {
-        return Parsers.sat(Character::isDigit);
+    public static Parser digit() {
+        return Parsers.sat(Predicates.isDigit());
     }
 
-    public static Parser<Integer, Integer, IntStream> lower() {
-        return Parsers.sat(Character::isLowerCase);
+    public static Parser lower() {
+        return Parsers.sat(Predicates.isLowerCase());
     }
 
-    public static Parser<Integer, Integer, IntStream> upper() {
-        return Parsers.sat(Character::isUpperCase);
+    public static Parser upper() {
+        return Parsers.sat(Predicates.isUpperCase());
     }
 
-    private static class Helpers {
+    private static class Predicates {
         private static <T> Predicate<List<T>> nonEmptyList() {
-            return ts -> !ts.isEmpty();
+            return l -> !l.isEmpty();
+        }
+
+        private static Predicate<String> nonEmptyString() {
+            return s -> !s.isEmpty();
+        }
+
+        private static Predicate<String> isDigit() {
+            return s -> s.codePoints().allMatch(Character::isDigit);
+        }
+
+        private static Predicate<String> isLowerCase() {
+            return s -> s.codePoints().allMatch(Character::isLowerCase);
+        }
+
+        private static Predicate<String> isUpperCase() {
+            return s -> s.codePoints().allMatch(Character::isUpperCase);
         }
     }
 }

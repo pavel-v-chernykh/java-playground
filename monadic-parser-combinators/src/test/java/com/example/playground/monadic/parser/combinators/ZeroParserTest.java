@@ -13,9 +13,9 @@ import static org.junit.Assert.assertThat;
 public class ZeroParserTest {
     @Test
     public void shouldAlwaysReturnEmptyList() {
-        final Parser<Integer, Integer, IntStream> parser = Parsers.<Integer, Integer, IntStream>zero();
+        final Parser parser = Parsers.<Integer, Integer, IntStream>zero();
         final String input = "word";
-        final List<ParserResult<Integer, Integer, IntStream>> actualParserResults = parser.parse(input.chars());
+        final List<ParserResult> actualParserResults = parser.parse(input);
 
         assertThat(actualParserResults, is(equalTo(Collections.emptyList())));
     }
