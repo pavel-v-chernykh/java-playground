@@ -9,19 +9,20 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ResultParserTest {
+public class ItemParserTest {
     @Test
-    public void shoudReturnPassedValueAndNotConsumedInput() {
-        final String result = "1";
+    public void shouldReturnFirstItemFromInputAndTheRestOfInput() {
         final String input = "word";
-        final Parser parser = Parsers.result(result);
+        final String result = "w";
+        final String stream = "ord";
+        final Parser parser = Parsers.item();
 
         final List<ParserResult> actualResults = parser.parse(input);
         final ParserResult actualParserResult = actualResults.get(0);
         final String actualResult = actualParserResult.getResult();
         final String actualStream = actualParserResult.getStream();
 
-        final List<ParserResult> expectedResults = parserResultList(result, input);
+        final List<ParserResult> expectedResults = parserResultList(result, stream);
         final ParserResult expectedParserResult = expectedResults.get(0);
         final String expectedResult = expectedParserResult.getResult();
         final String expectedStream = expectedParserResult.getStream();
