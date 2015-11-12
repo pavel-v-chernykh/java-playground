@@ -1,6 +1,6 @@
 # Java Playground
 
-Occasional use(ful)less java experiments
+Occasional useful(less) java experiments
 
 ## [Pattern Matching][pattern-matching]
 
