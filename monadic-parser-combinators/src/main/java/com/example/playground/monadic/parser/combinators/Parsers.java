@@ -71,6 +71,10 @@ public final class Parsers {
         return plus(lower(), upper());
     }
 
+    public static Parser alnum() {
+        return plus(letter(), digit());
+    }
+
     private static class Predicates {
         private static <T> Predicate<List<T>> nonEmptyList() {
             return l -> !l.isEmpty();
