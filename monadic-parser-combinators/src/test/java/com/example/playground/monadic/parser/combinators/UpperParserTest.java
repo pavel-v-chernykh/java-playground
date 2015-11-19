@@ -9,9 +9,11 @@ import static org.junit.Assert.assertThat;
 
 public class UpperParserTest {
     @Test
-    public void shouldParseOnlyLowerCasedChars() {
+    public void shouldParseOnlyUpperCaseItem() {
         final Parser parser = Parsers.upper();
 
         assertThat(parser.parse("World"), is(equalTo(parserResultList("W", "orld"))));
+        assertThat(parser.parse("world"), is(equalTo(parserResultList())));
+        assertThat(parser.parse(""), is(equalTo(parserResultList())));
     }
 }

@@ -9,9 +9,10 @@ import static org.junit.Assert.assertThat;
 
 public class ZeroParserTest {
     @Test
-    public void shouldAlwaysReturnEmptyList() {
+    public void shouldAlwaysFail() {
         final Parser parser = Parsers.zero();
 
         assertThat(parser.parse("word"), is(equalTo(parserResultList())));
+        assertThat(parser.parse(""), is(equalTo(parserResultList())));
     }
 }

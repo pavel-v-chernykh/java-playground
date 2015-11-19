@@ -10,9 +10,11 @@ import static org.junit.Assert.assertThat;
 
 public class SatParserTest {
     @Test
-    public void shouldAcceptCharSatisfyingThePredicate() {
+    public void shouldParseOnlyItemSatisfyingPredicate() {
         final Parser parser = sat(s -> s.codePoints().allMatch(Character::isDigit));
 
         assertThat(parser.parse("1world"), is(equalTo(parserResultList("1", "world"))));
+        assertThat(parser.parse("world"), is(equalTo(parserResultList())));
+        assertThat(parser.parse(""), is(equalTo(parserResultList())));
     }
 }

@@ -9,9 +9,10 @@ import static org.junit.Assert.assertThat;
 
 public class ItemParserTest {
     @Test
-    public void shouldReturnFirstItemFromInputAndTheRestOfInput() {
+    public void shouldParseOnlyOneItem() {
         final Parser parser = Parsers.item();
 
         assertThat(parser.parse("word"), is(equalTo(parserResultList("w", "ord"))));
+        assertThat(parser.parse(""), is(equalTo(parserResultList())));
     }
 }
