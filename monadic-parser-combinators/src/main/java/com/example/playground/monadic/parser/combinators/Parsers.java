@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.example.playground.monadic.parser.combinators.ParserResult.combine;
 import static com.example.playground.monadic.parser.combinators.ParserResult.parserResultList;
-import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.isEqual;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,7 +19,7 @@ public final class Parsers {
     }
 
     public static Parser zero() {
-        return input -> emptyList();
+        return input -> parserResultList();
     }
 
     @SuppressWarnings("unchecked")
@@ -28,7 +28,7 @@ public final class Parsers {
                 Optional.of(input)
                         .filter(Predicates.nonEmptyString())
                         .map(i -> parserResultList(i.substring(0, 1), i.substring(1, i.length())))
-                        .orElse(emptyList());
+                        .orElse(parserResultList());
     }
 
     public static Parser bind(Parser parser, Function<String, Parser> f) {
@@ -36,7 +36,7 @@ public final class Parsers {
                 Optional.of(parser.parse(input))
                         .filter(Predicates.nonEmptyList())
                         .map(results -> f.apply(results.get(0).getResult()).parse(results.get(0).getStream()))
-                        .orElse(emptyList());
+                        .orElse(parserResultList());
     }
 
     public static Parser sat(Predicate<String> p) {
@@ -61,6 +61,10 @@ public final class Parsers {
 
     public static Parser upper() {
         return Parsers.sat(Predicates.isUpperCase());
+    }
+
+    public static Parser plus(Parser p1, Parser p2) {
+        return input -> combine(p1.parse(input), p2.parse(input));
     }
 
     private static class Predicates {

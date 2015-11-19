@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -28,5 +29,12 @@ class ParserResult {
 
     public static List<ParserResult> parserResultList() {
         return emptyList();
+    }
+
+    public static List<ParserResult> combine(List<ParserResult> pr1, List<ParserResult> pr2) {
+        List<ParserResult> results = new ArrayList<>();
+        results.addAll(pr1);
+        results.addAll(pr2);
+        return results;
     }
 }
