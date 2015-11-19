@@ -75,6 +75,10 @@ public final class Parsers {
         return plus(letter(), digit());
     }
 
+    public static Parser word() {
+        return bind(letter(), l -> bind(plus(word(), result("")), w -> result(l + w)));
+    }
+
     private static class Predicates {
         private static <T> Predicate<List<T>> nonEmptyList() {
             return l -> !l.isEmpty();
