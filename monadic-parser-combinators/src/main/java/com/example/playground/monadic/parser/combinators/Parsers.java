@@ -75,8 +75,12 @@ public final class Parsers {
         return plus(letter(), digit());
     }
 
+    public static Parser many(Parser p) {
+        return bind(p, i -> bind(plus(many(p), result("")), o -> result(i + o)));
+    }
+
     public static Parser word() {
-        return bind(letter(), l -> bind(plus(word(), result("")), w -> result(l + w)));
+        return many(letter());
     }
 
     private static class Predicates {
