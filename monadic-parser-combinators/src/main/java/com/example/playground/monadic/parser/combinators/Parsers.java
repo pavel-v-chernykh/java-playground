@@ -40,7 +40,7 @@ public final class Parsers {
     }
 
     public static Parser sat(Predicate<String> p) {
-        return Parsers.bind(Parsers.item(), t ->
+        return bind(Parsers.item(), t ->
                 Optional.of(t)
                         .filter(p)
                         .map(Parsers::result)
@@ -48,23 +48,27 @@ public final class Parsers {
     }
 
     public static Parser exact(String item) {
-        return Parsers.sat(isEqual(item));
+        return sat(isEqual(item));
     }
 
     public static Parser digit() {
-        return Parsers.sat(Predicates.isDigit());
+        return sat(Predicates.isDigit());
     }
 
     public static Parser lower() {
-        return Parsers.sat(Predicates.isLowerCase());
+        return sat(Predicates.isLowerCase());
     }
 
     public static Parser upper() {
-        return Parsers.sat(Predicates.isUpperCase());
+        return sat(Predicates.isUpperCase());
     }
 
     public static Parser plus(Parser p1, Parser p2) {
         return input -> combine(p1.parse(input), p2.parse(input));
+    }
+
+    public static Parser letter() {
+        return plus(lower(), upper());
     }
 
     private static class Predicates {
