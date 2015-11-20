@@ -83,6 +83,10 @@ public final class Parsers {
         return many(letter());
     }
 
+    public static Parser nat() {
+        return many(digit());
+    }
+
     private static class Predicates {
         private static <T> Predicate<List<T>> nonEmptyList() {
             return l -> !l.isEmpty();
