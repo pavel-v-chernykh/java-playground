@@ -4,5 +4,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface Parser {
-    List<ParserResult> parse(String input);
+    List<Parsed> parse(String input);
 }

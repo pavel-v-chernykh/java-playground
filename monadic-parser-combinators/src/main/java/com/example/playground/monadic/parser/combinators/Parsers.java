@@ -8,18 +8,18 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.example.playground.monadic.parser.combinators.ParserResult.combine;
-import static com.example.playground.monadic.parser.combinators.ParserResult.parserResultList;
+import static com.example.playground.monadic.parser.combinators.Parsed.combine;
+import static com.example.playground.monadic.parser.combinators.Parsed.parsedList;
 import static java.util.function.Predicate.isEqual;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Parsers {
     public static Parser result(String result) {
-        return input -> parserResultList(result, input);
+        return input -> parsedList(result, input);
     }
 
     public static Parser zero() {
-        return input -> parserResultList();
+        return input -> parsedList();
     }
 
     @SuppressWarnings("unchecked")
@@ -27,16 +27,16 @@ public final class Parsers {
         return input ->
                 Optional.of(input)
                         .filter(Predicates.nonEmptyString())
-                        .map(i -> parserResultList(i.substring(0, 1), i.substring(1, i.length())))
-                        .orElse(parserResultList());
+                        .map(i -> parsedList(i.substring(0, 1), i.substring(1, i.length())))
+                        .orElse(parsedList());
     }
 
     public static Parser bind(Parser parser, Function<String, Parser> f) {
         return input ->
                 Optional.of(parser.parse(input))
                         .filter(Predicates.nonEmptyList())
-                        .map(results -> f.apply(results.get(0).getResult()).parse(results.get(0).getStream()))
-                        .orElse(parserResultList());
+                        .map(results -> f.apply(results.get(0).getItem()).parse(results.get(0).getRest()))
+                        .orElse(parsedList());
     }
 
     public static Parser sat(Predicate<String> p) {
