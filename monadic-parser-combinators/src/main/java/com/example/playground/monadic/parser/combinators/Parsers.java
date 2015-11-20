@@ -87,6 +87,10 @@ public final class Parsers {
         return many(digit());
     }
 
+    public static Parser integer() {
+        return plus(bind(exact("-"), m -> bind(nat(), n -> result(m + n))), nat());
+    }
+
     private static class Predicates {
         private static <T> Predicate<List<T>> nonEmptyList() {
             return l -> !l.isEmpty();
