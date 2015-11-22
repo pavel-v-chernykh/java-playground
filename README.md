@@ -1,6 +1,6 @@
 # Java Playground
 
-Occasional useful(less) java experiments
+Occasional useful(less) Java experiments
 
 ## [Pattern Matching][pattern-matching]
 
@@ -18,9 +18,9 @@ Monadic parser combinators implementation in Java 8.
 Inspired by the paper ["Monadic Parser Combinators"][monadic-parser-combinators-paper] 
 written by Graham Hutton and Erik Meijer. 
 
-[pattern-matching]: https://github.com/pavel-v-chernykh/java_playground/tree/master/pattern-matching
-[result]: https://github.com/pavel-v-chernykh/java_playground/tree/master/result
-[monadic-parser-combinators]: https://github.com/pavel-v-chernykh/java_playground/tree/master/monadic-parser-combinators
+[pattern-matching]: ./pattern-matching
+[result]: ./result
+[monadic-parser-combinators]: ./monadic-parser-combinators
 
 [predicate]: https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html
 [lambdas]: https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
