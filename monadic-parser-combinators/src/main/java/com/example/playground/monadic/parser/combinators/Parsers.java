@@ -95,8 +95,12 @@ public final class Parsers {
         return bind(p, i -> bind(plus(many(bind(sep, s -> p)), result("")), o -> result(i + o)));
     }
 
+    public static Parser bracket(Parser open, Parser p, Parser close) {
+        return bind(open, b1 -> bind(p, i -> bind(close, b2 -> result(i))));
+    }
+
     public static Parser integers() {
-        return bind(exact("["), b1 -> bind(sepby(integer(), exact(",")), o -> bind(exact("]"), b2 -> result(o))));
+        return bracket(exact("["), sepby(integer(), exact(",")), exact("]"));
     }
 
     private static class Predicates {
