@@ -91,12 +91,12 @@ public final class Parsers {
         return plus(bind(exact("-"), m -> bind(nat(), n -> result(m + n))), nat());
     }
 
+    public static Parser sepby(Parser p, Parser sep) {
+        return bind(p, i -> bind(plus(many(bind(sep, s -> p)), result("")), o -> result(i + o)));
+    }
+
     public static Parser integers() {
-        return bind(exact("["),
-                b1 -> bind(integer(),
-                        i -> bind(plus(many(bind(exact(","), s -> integer())), result("")),
-                                o -> bind(exact("]"),
-                                        b2 -> result(i + o)))));
+        return bind(exact("["), b1 -> bind(sepby(integer(), exact(",")), o -> bind(exact("]"), b2 -> result(o))));
     }
 
     private static class Predicates {
