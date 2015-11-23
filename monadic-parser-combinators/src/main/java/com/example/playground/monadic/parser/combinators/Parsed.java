@@ -15,24 +15,24 @@ import static java.util.Collections.singletonList;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-class Parsed {
-    private final String item;
+class Parsed<T> {
+    private final T item;
     private final String rest;
 
-    public static Parsed parsed(String result, String stream) {
-        return new Parsed(result, stream);
+    public static <T> Parsed<T> parsed(T result, String stream) {
+        return new Parsed<>(result, stream);
     }
 
-    public static List<Parsed> parsedList(String result, String stream) {
+    public static <T> List<Parsed<T>> parsedList(T result, String stream) {
         return singletonList(parsed(result, stream));
     }
 
-    public static List<Parsed> parsedList() {
+    public static <T> List<Parsed<T>> parsedList() {
         return emptyList();
     }
 
-    public static List<Parsed> combine(List<Parsed> pr1, List<Parsed> pr2) {
-        List<Parsed> results = new ArrayList<>();
+    public static <T> List<Parsed<T>> combine(List<Parsed<T>> pr1, List<Parsed<T>> pr2) {
+        List<Parsed<T>> results = new ArrayList<>();
         results.addAll(pr1);
         results.addAll(pr2);
         return results;

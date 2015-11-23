@@ -14,16 +14,16 @@ import static java.util.function.Predicate.isEqual;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Parsers {
-    public static Parser result(String result) {
+    public static <T> Parser<T> result(T result) {
         return input -> parsedList(result, input);
     }
 
-    public static Parser zero() {
+    public static <T> Parser<T> zero() {
         return input -> parsedList();
     }
 
     @SuppressWarnings("unchecked")
-    public static Parser item() {
+    public static Parser<String> item() {
         return input ->
                 Optional.of(input)
                         .filter(Predicates.nonEmptyString())
@@ -31,7 +31,7 @@ public final class Parsers {
                         .orElse(parsedList());
     }
 
-    public static Parser bind(Parser parser, Function<String, Parser> f) {
+    public static Parser<String> bind(Parser<String> parser, Function<String, Parser<String>> f) {
         return input ->
                 Optional.of(parser.parse(input))
                         .filter(Predicates.nonEmptyList())
@@ -39,7 +39,7 @@ public final class Parsers {
                         .orElse(parsedList());
     }
 
-    public static Parser sat(Predicate<String> p) {
+    public static Parser<String> sat(Predicate<String> p) {
         return bind(Parsers.item(), t ->
                 Optional.of(t)
                         .filter(p)
@@ -47,59 +47,59 @@ public final class Parsers {
                         .orElseGet(Parsers::zero));
     }
 
-    public static Parser exact(String item) {
+    public static Parser<String> exact(String item) {
         return sat(isEqual(item));
     }
 
-    public static Parser digit() {
+    public static Parser<String> digit() {
         return sat(Predicates.isDigit());
     }
 
-    public static Parser lower() {
+    public static Parser<String> lower() {
         return sat(Predicates.isLowerCase());
     }
 
-    public static Parser upper() {
+    public static Parser<String> upper() {
         return sat(Predicates.isUpperCase());
     }
 
-    public static Parser plus(Parser p1, Parser p2) {
+    public static Parser<String> plus(Parser<String> p1, Parser<String> p2) {
         return input -> combine(p1.parse(input), p2.parse(input));
     }
 
-    public static Parser letter() {
+    public static Parser<String> letter() {
         return plus(lower(), upper());
     }
 
-    public static Parser alnum() {
+    public static Parser<String> alnum() {
         return plus(letter(), digit());
     }
 
-    public static Parser many(Parser p) {
+    public static Parser<String> many(Parser<String> p) {
         return bind(p, i -> bind(plus(many(p), result("")), o -> result(i + o)));
     }
 
-    public static Parser word() {
+    public static Parser<String> word() {
         return many(letter());
     }
 
-    public static Parser nat() {
+    public static Parser<String> nat() {
         return many(digit());
     }
 
-    public static Parser integer() {
+    public static Parser<String> integer() {
         return plus(bind(exact("-"), m -> bind(nat(), n -> result(m + n))), nat());
     }
 
-    public static Parser sepby(Parser p, Parser sep) {
+    public static Parser<String> sepby(Parser<String> p, Parser<String> sep) {
         return bind(p, i -> bind(plus(many(bind(sep, s -> p)), result("")), o -> result(i + o)));
     }
 
-    public static Parser bracket(Parser open, Parser p, Parser close) {
+    public static Parser<String> bracket(Parser<String> open, Parser<String> p, Parser<String> close) {
         return bind(open, b1 -> bind(p, i -> bind(close, b2 -> result(i))));
     }
 
-    public static Parser integers() {
+    public static Parser<String> integers() {
         return bracket(exact("["), sepby(integer(), exact(",")), exact("]"));
     }
 
