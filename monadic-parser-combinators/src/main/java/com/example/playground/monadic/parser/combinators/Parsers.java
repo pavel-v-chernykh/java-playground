@@ -3,13 +3,15 @@ package com.example.playground.monadic.parser.combinators;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import static com.example.playground.monadic.parser.combinators.Parsed.combine;
 import static com.example.playground.monadic.parser.combinators.Parsed.parsedList;
+import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.isEqual;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,7 +33,7 @@ public final class Parsers {
                         .orElse(parsedList());
     }
 
-    public static Parser<String> bind(Parser<String> parser, Function<String, Parser<String>> f) {
+    public static <T1, T2> Parser<T2> bind(Parser<T1> parser, Function<T1, Parser<T2>> f) {
         return input ->
                 Optional.of(parser.parse(input))
                         .filter(Predicates.nonEmptyList())
@@ -63,43 +65,43 @@ public final class Parsers {
         return sat(Predicates.isUpperCase());
     }
 
-    public static Parser<String> plus(Parser<String> p1, Parser<String> p2) {
-        return input -> combine(p1.parse(input), p2.parse(input));
+    public static <T> Parser<T> or(Parser<T> p1, Parser<T> p2) {
+        return input -> Parsed.or(p1.parse(input), p2.parse(input));
     }
 
     public static Parser<String> letter() {
-        return plus(lower(), upper());
+        return or(lower(), upper());
     }
 
     public static Parser<String> alnum() {
-        return plus(letter(), digit());
+        return or(letter(), digit());
     }
 
-    public static Parser<String> many(Parser<String> p) {
-        return bind(p, i -> bind(plus(many(p), result("")), o -> result(i + o)));
+    public static <T> Parser<List<T>> many(Parser<T> p) {
+        return bind(p, i -> bind(or(many(p), result(emptyList())), o -> result(Helpers.addToList(o, i))));
     }
 
     public static Parser<String> word() {
-        return many(letter());
+        return bind(many(letter()), letters -> result(Helpers.concatenate(letters)));
     }
 
-    public static Parser<String> nat() {
-        return many(digit());
+    public static Parser<Long> nat() {
+        return bind(many(digit()), digits -> result(Helpers.listOfStringsToLong(digits)));
     }
 
-    public static Parser<String> integer() {
-        return plus(bind(exact("-"), m -> bind(nat(), n -> result(m + n))), nat());
+    public static Parser<Long> integer() {
+        return or(bind(exact("-"), m -> bind(nat(), n -> result(n * -1))), nat());
     }
 
-    public static Parser<String> sepby(Parser<String> p, Parser<String> sep) {
-        return bind(p, i -> bind(plus(many(bind(sep, s -> p)), result("")), o -> result(i + o)));
+    public static <T> Parser<List<T>> sepby(Parser<T> p, Parser<String> sep) {
+        return bind(p, i -> bind(or(many(bind(sep, s -> p)), result(emptyList())), o -> result(Helpers.addToList(o, i))));
     }
 
-    public static Parser<String> bracket(Parser<String> open, Parser<String> p, Parser<String> close) {
+    public static <T> Parser<T> bracket(Parser<String> open, Parser<T> p, Parser<String> close) {
         return bind(open, b1 -> bind(p, i -> bind(close, b2 -> result(i))));
     }
 
-    public static Parser<String> integers() {
+    public static Parser<List<Long>> integers() {
         return bracket(exact("["), sepby(integer(), exact(",")), exact("]"));
     }
 
@@ -122,6 +124,22 @@ public final class Parsers {
 
         private static Predicate<String> isUpperCase() {
             return s -> s.codePoints().allMatch(Character::isUpperCase);
+        }
+    }
+
+    private static class Helpers {
+        private static <T> List<T> addToList(List<T> list, T item) {
+            final ArrayList<T> newList = new ArrayList<>(list);
+            newList.add(0, item);
+            return newList;
+        }
+
+        private static Long listOfStringsToLong(List<String> list) {
+            return list.stream().mapToLong(Long::valueOf).reduce(0, (left, right) -> left * 10 + right);
+        }
+
+        public static String concatenate(List<String> letters) {
+            return letters.stream().collect(Collectors.joining());
         }
     }
 }

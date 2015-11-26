@@ -2,6 +2,8 @@ package com.example.playground.monadic.parser.combinators;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static com.example.playground.monadic.parser.combinators.Parsed.parsedList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -12,8 +14,8 @@ public class SepbyParserTest {
     public void shouldParseSeparatedItems() {
         Parser parser = Parsers.sepby(Parsers.integer(), Parsers.exact(","));
 
-        assertThat(parser.parse("1"), is(equalTo(parsedList("1", ""))));
-        assertThat(parser.parse("0,1,2,3"), is(equalTo(parsedList("0123", ""))));
+        assertThat(parser.parse("1"), is(equalTo(parsedList(Arrays.asList(1L), ""))));
+        assertThat(parser.parse("0,1,2,3"), is(equalTo(parsedList(Arrays.asList(0L, 1L, 2L, 3L), ""))));
         assertThat(parser.parse(""), is(equalTo(parsedList())));
     }
 }

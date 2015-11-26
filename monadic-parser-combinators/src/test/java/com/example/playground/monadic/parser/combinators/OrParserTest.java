@@ -7,10 +7,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PlusParserTest {
+public class OrParserTest {
     @Test
-    public void shouldCombineResultsOfTwoParsers() {
-        Parser parser = Parsers.plus(Parsers.lower(), Parsers.upper());
+    public void shouldReturnResultOfSecondParserIfFirstOneFailed() {
+        Parser parser = Parsers.or(Parsers.lower(), Parsers.upper());
 
         assertThat(parser.parse("world"), is(equalTo(parsedList("w", "orld"))));
         assertThat(parser.parse("World"), is(equalTo(parsedList("W", "orld"))));

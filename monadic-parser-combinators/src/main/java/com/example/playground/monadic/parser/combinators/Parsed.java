@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -31,10 +30,11 @@ class Parsed<T> {
         return emptyList();
     }
 
-    public static <T> List<Parsed<T>> combine(List<Parsed<T>> pr1, List<Parsed<T>> pr2) {
-        List<Parsed<T>> results = new ArrayList<>();
-        results.addAll(pr1);
-        results.addAll(pr2);
-        return results;
+    public static <T> List<Parsed<T>> or(List<Parsed<T>> pr1, List<Parsed<T>> pr2) {
+        if (pr1.isEmpty()) {
+            return pr2;
+        } else {
+            return pr1;
+        }
     }
 }
