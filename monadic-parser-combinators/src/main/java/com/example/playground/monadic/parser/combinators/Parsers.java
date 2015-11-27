@@ -77,6 +77,10 @@ public final class Parsers {
         return or(letter(), digit());
     }
 
+    public static Parser<String> space() {
+        return sat(Predicates.isSpace());
+    }
+
     public static <T> Parser<List<T>> many(Parser<T> p) {
         return bind(p, i -> bind(or(many(p), result(emptyList())), o -> result(Helpers.addToList(o, i))));
     }
@@ -124,6 +128,10 @@ public final class Parsers {
 
         private static Predicate<String> isUpperCase() {
             return s -> s.codePoints().allMatch(Character::isUpperCase);
+        }
+
+        private static Predicate<String> isSpace() {
+            return s -> s.codePoints().allMatch(Character::isWhitespace);
         }
     }
 
