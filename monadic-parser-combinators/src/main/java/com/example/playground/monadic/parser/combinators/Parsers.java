@@ -85,6 +85,10 @@ public final class Parsers {
         return bind(p, i -> bind(or(many(p), result(emptyList())), o -> result(Helpers.addToList(o, i))));
     }
 
+    public static Parser<String> spaces() {
+        return bind(many(space()), spaces -> result(Helpers.concatenate(spaces)));
+    }
+
     public static Parser<String> word() {
         return bind(many(letter()), letters -> result(Helpers.concatenate(letters)));
     }
