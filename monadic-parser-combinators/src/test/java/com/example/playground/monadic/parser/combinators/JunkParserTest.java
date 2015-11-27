@@ -14,7 +14,7 @@ public class JunkParserTest {
         Parser parser = Parsers.junk();
 
         assertThat(parser.parse(" \t\n\r"), is(equalTo(parsedList(emptyList(), ""))));
-        assertThat(parser.parse("1"), is(equalTo(parsedList())));
-        assertThat(parser.parse(""), is(equalTo(parsedList())));
+        assertThat(parser.parse("1"), is(equalTo(parsedList(emptyList(), "1"))));
+        assertThat(parser.parse(""), is(equalTo(parsedList(emptyList(), ""))));
     }
 }

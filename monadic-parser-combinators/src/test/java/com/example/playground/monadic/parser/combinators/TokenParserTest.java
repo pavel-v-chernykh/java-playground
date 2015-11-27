@@ -7,12 +7,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ParseParserTest {
+public class TokenParserTest {
     @Test
-    public void shouldDiscardSpacesAndParseItem() {
-        Parser parser = Parsers.parse(Parsers.integer());
+    public void shouldParseItemAndDiscardSpaces() {
+        Parser parser = Parsers.token(Parsers.integer());
 
-        assertThat(parser.parse(" \t\r\n1"), is(equalTo(parsedList(1L, ""))));
+        assertThat(parser.parse("1 \t\n"), is(equalTo(parsedList(1L, ""))));
         assertThat(parser.parse("1"), is(equalTo(parsedList(1L, ""))));
         assertThat(parser.parse(""), is(equalTo(parsedList())));
     }

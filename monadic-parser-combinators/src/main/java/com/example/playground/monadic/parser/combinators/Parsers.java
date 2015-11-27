@@ -90,11 +90,15 @@ public final class Parsers {
     }
 
     public static <T> Parser<List<T>> junk() {
-        return bind(spaces(), junk -> result(emptyList()));
+        return bind(or(spaces(), result("")), junk -> result(emptyList()));
     }
 
     public static <T> Parser<T> parse(Parser<T> p) {
         return bind(junk(), junk -> p);
+    }
+
+    public static <T> Parser<T> token(Parser<T> p) {
+        return bind(p, token -> bind(junk(), junk -> result(token)));
     }
 
     public static Parser<String> word() {
