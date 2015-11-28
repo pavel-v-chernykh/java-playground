@@ -10,43 +10,42 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.example.playground.monadic.parser.combinators.Parsed.parsedList;
+import static com.example.playground.monadic.parser.combinators.Parsed.parsedError;
+import static com.example.playground.monadic.parser.combinators.Parsed.parsedResult;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.isEqual;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Parsers {
     public static <T> Parser<T> result(T result) {
-        return input -> parsedList(result, input);
+        return input -> parsedResult(result, input);
     }
 
-    public static <T> Parser<T> zero() {
-        return input -> parsedList();
+    public static <T> Parser<T> error(String error) {
+        return input -> parsedError(error);
     }
 
     @SuppressWarnings("unchecked")
     public static Parser<String> item() {
-        return input ->
-                Optional.of(input)
-                        .filter(Predicates.nonEmptyString())
-                        .map(i -> parsedList(i.substring(0, 1), i.substring(1, i.length())))
-                        .orElse(parsedList());
+        return input -> {
+            if (!input.isEmpty()) {
+                return parsedResult(input.substring(0, 1), input.substring(1, input.length()));
+            } else {
+                return parsedError("Can not parse item");
+            }
+        };
     }
 
     public static <T1, T2> Parser<T2> bind(Parser<T1> parser, Function<T1, Parser<T2>> f) {
-        return input ->
-                Optional.of(parser.parse(input))
-                        .filter(Predicates.nonEmptyList())
-                        .map(results -> f.apply(results.get(0).getItem()).parse(results.get(0).getRest()))
-                        .orElse(parsedList());
+        return input -> parser.parse(input).flatMap(parsed -> f.apply(parsed.getItem()).parse(parsed.getRest()));
     }
 
     public static Parser<String> sat(Predicate<String> p) {
-        return bind(Parsers.item(), t ->
-                Optional.of(t)
-                        .filter(p)
-                        .map(Parsers::result)
-                        .orElseGet(Parsers::zero));
+        return bind(Parsers.item(), i -> Optional.of(i)
+                .filter(p)
+                .map(Parsers::result)
+                .orElseGet(() -> Parsers.error(format("Predicate is not satisfied with '%s'", i))));
     }
 
     public static Parser<String> exact(String item) {
@@ -66,7 +65,7 @@ public final class Parsers {
     }
 
     public static <T> Parser<T> or(Parser<T> p1, Parser<T> p2) {
-        return input -> Parsed.or(p1.parse(input), p2.parse(input));
+        return input -> p1.parse(input).orElseGet(() -> p2.parse(input));
     }
 
     public static Parser<String> letter() {
@@ -126,14 +125,6 @@ public final class Parsers {
     }
 
     private static class Predicates {
-        private static <T> Predicate<List<T>> nonEmptyList() {
-            return l -> !l.isEmpty();
-        }
-
-        private static Predicate<String> nonEmptyString() {
-            return s -> !s.isEmpty();
-        }
-
         private static Predicate<String> isDigit() {
             return s -> s.codePoints().allMatch(Character::isDigit);
         }

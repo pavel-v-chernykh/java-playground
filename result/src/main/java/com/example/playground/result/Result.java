@@ -5,6 +5,7 @@ import lombok.*;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Setter(AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -60,5 +61,9 @@ public class Result<R, E> {
 
     public <F> Result<R, F> orElse(Result<R, F> other) {
         return isError() ? other : result(result);
+    }
+
+    public <F> Result<R, F> orElseGet(Supplier<Result<R, F>> supplier) {
+        return isError() ? supplier.get() : result(result);
     }
 }

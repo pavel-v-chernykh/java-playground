@@ -35,5 +35,9 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>result</artifactId>
+        </dependency>
     </dependencies>
 </project>

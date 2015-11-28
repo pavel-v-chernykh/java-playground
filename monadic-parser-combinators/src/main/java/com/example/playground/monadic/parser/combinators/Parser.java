@@ -1,8 +1,8 @@
 package com.example.playground.monadic.parser.combinators;
 
-import java.util.List;
+import com.example.playground.result.Result;
 
 @FunctionalInterface
 public interface Parser<T> {
-    List<Parsed<T>> parse(String input);
+    Result<Parsed<T>, String> parse(String input);
 }
