@@ -117,4 +117,16 @@ public class ResultTest {
         assertThat(error(1).orElse(result(2)), is(result(2)));
         assertThat(error(1).orElse(error(2)), is(error(2)));
     }
+
+    @Test
+    public void orElseGetSupplierShouldReturnOriginalResultForResultVariant() {
+        assertThat(result(1).orElseGet(() -> result(2)), is(result(1)));
+        assertThat(result(1).orElseGet(() -> error(2)), is(result(1)));
+    }
+
+    @Test
+    public void orElseGetSupplierShouldReturnOtherResultForErrorVariant() {
+        assertThat(error(1).orElseGet(() -> result(2)), is(result(2)));
+        assertThat(error(1).orElseGet(() -> error(2)), is(error(2)));
+    }
 }
