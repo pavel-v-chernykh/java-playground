@@ -5,34 +5,32 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static com.example.playground.monadic.parser.combinators.Parsed.parsedError;
-import static com.example.playground.monadic.parser.combinators.Parsed.parsedResult;
+import static com.example.playground.monadic.parser.combinators.Parsers.Helpers.*;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.isEqual;
+import static java.util.stream.Collectors.joining;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Parsers {
     public static <T> Parser<T> result(T result) {
-        return input -> parsedResult(result, input);
+        return input -> Parser.result(result, input);
     }
 
     public static <T> Parser<T> error(String error) {
-        return input -> parsedError(error);
+        return input -> Parser.error(error);
     }
 
     @SuppressWarnings("unchecked")
     public static Parser<String> item() {
         return input -> {
             if (!input.isEmpty()) {
-                return parsedResult(input.substring(0, 1), input.substring(1, input.length()));
+                return Parser.result(input.substring(0, 1), input.substring(1, input.length()));
             } else {
-                return parsedError("Can not parse item");
+                return Parser.error("Can not parse item");
             }
         };
     }
@@ -42,10 +40,13 @@ public final class Parsers {
     }
 
     public static Parser<String> sat(Predicate<String> p) {
-        return bind(Parsers.item(), i -> Optional.of(i)
-                .filter(p)
-                .map(Parsers::result)
-                .orElseGet(() -> Parsers.error(format("Predicate is not satisfied with '%s'", i))));
+        return bind(Parsers.item(), i -> {
+            if (p.test(i)) {
+                return result(i);
+            } else {
+                return error(format("Predicate is not satisfied with '%s'", i));
+            }
+        });
     }
 
     public static Parser<String> exact(String item) {
@@ -81,11 +82,11 @@ public final class Parsers {
     }
 
     public static <T> Parser<List<T>> many(Parser<T> p) {
-        return bind(p, i -> bind(or(many(p), result(emptyList())), o -> result(Helpers.addToList(o, i))));
+        return bind(p, i -> bind(or(many(p), result(emptyList())), o -> result(prependList(o, i))));
     }
 
     public static Parser<String> spaces() {
-        return bind(many(space()), spaces -> result(Helpers.concatenate(spaces)));
+        return bind(many(space()), spaces -> result(concatenate(spaces)));
     }
 
     public static <T> Parser<List<T>> junk() {
@@ -101,11 +102,11 @@ public final class Parsers {
     }
 
     public static Parser<String> word() {
-        return bind(many(letter()), letters -> result(Helpers.concatenate(letters)));
+        return bind(many(letter()), letters -> result(concatenate(letters)));
     }
 
     public static Parser<Long> nat() {
-        return bind(many(digit()), digits -> result(Helpers.listOfStringsToLong(digits)));
+        return bind(many(digit()), digits -> result(listOfStringsToLong(digits)));
     }
 
     public static Parser<Long> integer() {
@@ -113,7 +114,7 @@ public final class Parsers {
     }
 
     public static <T> Parser<List<T>> sepby(Parser<T> p, Parser<String> sep) {
-        return bind(p, i -> bind(or(many(bind(sep, s -> p)), result(emptyList())), o -> result(Helpers.addToList(o, i))));
+        return bind(p, i -> bind(or(many(bind(sep, s -> p)), result(emptyList())), o -> result(prependList(o, i))));
     }
 
     public static <T> Parser<T> bracket(Parser<String> open, Parser<T> p, Parser<String> close) {
@@ -142,19 +143,19 @@ public final class Parsers {
         }
     }
 
-    private static class Helpers {
-        private static <T> List<T> addToList(List<T> list, T item) {
+    static class Helpers {
+        static <T> List<T> prependList(List<T> list, T item) {
             final ArrayList<T> newList = new ArrayList<>(list);
             newList.add(0, item);
             return newList;
         }
 
-        private static Long listOfStringsToLong(List<String> list) {
+        static Long listOfStringsToLong(List<String> list) {
             return list.stream().mapToLong(Long::valueOf).reduce(0, (left, right) -> left * 10 + right);
         }
 
         public static String concatenate(List<String> letters) {
-            return letters.stream().collect(Collectors.joining());
+            return letters.stream().collect(joining());
         }
     }
 }
