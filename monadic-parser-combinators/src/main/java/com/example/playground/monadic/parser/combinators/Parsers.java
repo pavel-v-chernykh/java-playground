@@ -118,6 +118,18 @@ public final class Parsers {
         return bind(many(letter()), letters -> result(concatenate(letters)));
     }
 
+    public static Parser<String> string(String string) {
+        return input -> {
+            if (input.length() < string.length()) {
+                return Parser.error(format("Can not parse string '%s'", string));
+            }
+            if (!input.substring(0, string.length()).equals(string)) {
+                return Parser.error(format("Can not parse string '%s'", string));
+            }
+            return Parser.result(string, input.substring(string.length(), input.length()));
+        };
+    }
+
     public static Parser<Long> nat() {
         return bind(many(digit()), digits -> result(listOfStringsToLong(digits)));
     }
