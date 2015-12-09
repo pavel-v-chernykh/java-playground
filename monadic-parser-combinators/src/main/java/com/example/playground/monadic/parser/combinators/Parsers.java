@@ -1,5 +1,6 @@
 package com.example.playground.monadic.parser.combinators;
 
+import com.example.playground.result.Result;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -65,8 +66,20 @@ public final class Parsers {
         return sat(Predicates.isUpperCase());
     }
 
-    public static <T> Parser<T> or(Parser<T> p1, Parser<T> p2) {
-        return input -> p1.parse(input).orElseGet(() -> p2.parse(input));
+    @SafeVarargs
+    public static <T> Parser<T> or(Parser<T> p1, Parser<T>... others) {
+        return input -> {
+            Result<Parsed<T>, String> result = p1.parse(input);
+            if (result.isError()) {
+                for (Parser<T> parser : others) {
+                    result = parser.parse(input);
+                    if (result.isResult()) {
+                        break;
+                    }
+                }
+            }
+            return result;
+        };
     }
 
     public static Parser<String> letter() {
