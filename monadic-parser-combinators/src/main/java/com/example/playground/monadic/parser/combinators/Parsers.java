@@ -114,6 +114,10 @@ public final class Parsers {
         return bind(p, token -> bind(junk(), junk -> result(token)));
     }
 
+    public static Parser<String> seq(Parser<String> p) {
+        return bind(many(p), item -> result(concatenate(item)));
+    }
+
     public static Parser<String> word() {
         return bind(many(letter()), letters -> result(concatenate(letters)));
     }
