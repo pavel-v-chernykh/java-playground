@@ -119,7 +119,7 @@ public final class Parsers {
     }
 
     public static Parser<String> word() {
-        return bind(many(letter()), letters -> result(concatenate(letters)));
+        return seq(letter());
     }
 
     public static Parser<String> string(String string) {
