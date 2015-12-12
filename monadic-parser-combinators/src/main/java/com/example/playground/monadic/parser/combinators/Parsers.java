@@ -150,6 +150,10 @@ public final class Parsers {
         return bind(open, b1 -> bind(p, i -> bind(close, b2 -> result(i))));
     }
 
+    public static <T1, T2, T3, T4> Parser<T4> ternary(Parser<T1> p1, Parser<T2> p2, Parser<T3> p3, TriFunction<T1, T2, T3, Parser<T4>> f) {
+        return bind(p1, t1 -> bind(p2, t2 -> bind(p3, t3 -> f.apply(t1, t2, t3))));
+    }
+
     public static Parser<List<Long>> integers() {
         return bracket(exact("["), sepby(integer(), exact(",")), exact("]"));
     }
