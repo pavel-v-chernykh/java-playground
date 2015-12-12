@@ -146,12 +146,12 @@ public final class Parsers {
         return bind(p, i -> bind(or(many(bind(sep, s -> p)), result(emptyList())), o -> result(prependList(o, i))));
     }
 
-    public static <T> Parser<T> bracket(Parser<String> open, Parser<T> p, Parser<String> close) {
-        return bind(open, b1 -> bind(p, i -> bind(close, b2 -> result(i))));
-    }
-
     public static <T1, T2, T3, T4> Parser<T4> ternary(Parser<T1> p1, Parser<T2> p2, Parser<T3> p3, TriFunction<T1, T2, T3, Parser<T4>> f) {
         return bind(p1, t1 -> bind(p2, t2 -> bind(p3, t3 -> f.apply(t1, t2, t3))));
+    }
+
+    public static <T> Parser<T> bracket(Parser<String> open, Parser<T> p, Parser<String> close) {
+        return ternary(open, p, close, (s1, t, s2) -> result(t));
     }
 
     public static Parser<List<Long>> integers() {
