@@ -1,6 +1,5 @@
 package com.example.playground.monadic.parser.combinators;
 
-import com.example.playground.result.Result;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.Value;
@@ -9,6 +8,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.playground.monadic.parser.combinators.ExpressionParsers.root;
 import static com.example.playground.monadic.parser.combinators.Parsers.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -113,25 +113,16 @@ class ExpressionEvaluatingVisitor implements ExpressionVisitor {
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ExpressionParsers {
-    public static final Parser<Expression> OPERATOR = or(operator("or"), operator("and"));
-    public static final Parser<Expression> IDENTIFIER = identifier();
-    public static final Parser<Expression> BOOL_EXPRESSION = new Parser<Expression>() {
-        @Override
-        public Result<Parsed<Expression>, String> parse(String input) {
-            final Parser<Expression> left = or(IDENTIFIER, BOOL_EXPRESSION_IN_PARENTHESIS, BOOL_EXPRESSION);
-            final Parser<Expression> right = or(BOOL_EXPRESSION, BOOL_EXPRESSION_IN_PARENTHESIS, IDENTIFIER);
-            return ternary(left, OPERATOR, right, ExpressionParsers::boolExpression).parse(input);
-        }
-    };
-    public static final Parser<Expression> BOOL_EXPRESSION_IN_PARENTHESIS = inParenthesis(BOOL_EXPRESSION);
-    public static final Parser<Expression> ROOT = parse(BOOL_EXPRESSION);
-
     public static Parser<Expression> identifier() {
         return token(bind(seq(alnum()), id -> result(Identifier.of(id))));
     }
 
     public static Parser<Expression> operator(String operator) {
-        return token(bind(string(operator), o -> result(Operator.of(operator))));
+        return token(bind(string(operator), o -> result(Operator.of(o))));
+    }
+
+    public static Parser<Expression> operators() {
+        return or(operator("or"), operator("and"));
     }
 
     public static Parser<Expression> boolExpression(Expression left, Expression operator, Expression right) {
@@ -140,6 +131,22 @@ final class ExpressionParsers {
 
     public static Parser<Expression> inParenthesis(Parser<Expression> expression) {
         return bracket(token(exact("(")), expression, token(exact(")")));
+    }
+
+    public static Parser<Expression> begin() {
+        return or(identifier(), inParenthesis(expression()), expression());
+    }
+
+    public static Parser<Expression> end() {
+        return or(expression(), inParenthesis(expression()), identifier());
+    }
+
+    public static Parser<Expression> expression() {
+        return input -> ternary(begin(), operators(), end(), ExpressionParsers::boolExpression).parse(input);
+    }
+
+    public static Parser<Expression> root() {
+        return parse(expression());
     }
 }
 
@@ -167,7 +174,7 @@ public class ExpressionParserTest {
         final ExpressionEvaluatingVisitor visitor = new ExpressionEvaluatingVisitor(context);
         visitor.visit(parsedBoolExpression);
         assertThat(visitor.getEvaluationResult(), is(true));
-        assertThat(ExpressionParsers.ROOT.parse("e1 and e2 and (e3 or e4)"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
+        assertThat(root().parse("e1 and e2 and (e3 or e4)"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
     }
 
     @Test
@@ -193,7 +200,7 @@ public class ExpressionParserTest {
         final ExpressionEvaluatingVisitor visitor = new ExpressionEvaluatingVisitor(context);
         visitor.visit(parsedBoolExpression);
         assertThat(visitor.getEvaluationResult(), is(false));
-        assertThat(ExpressionParsers.ROOT.parse("e1 and (e2 or e3) and e4"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
+        assertThat(root().parse("e1 and (e2 or e3) and e4"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
 
     }
 
@@ -220,6 +227,6 @@ public class ExpressionParserTest {
         final ExpressionEvaluatingVisitor visitor = new ExpressionEvaluatingVisitor(context);
         visitor.visit(parsedBoolExpression);
         assertThat(visitor.getEvaluationResult(), is(true));
-        assertThat(ExpressionParsers.ROOT.parse("(e1 or e2) and e3 and e4"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
+        assertThat(root().parse("(e1 or e2) and e3 and e4"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
     }
 }
