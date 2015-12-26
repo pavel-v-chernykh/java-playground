@@ -23,23 +23,23 @@ public class PatternMatching<T, U> implements Function<T, Optional<U>> {
         return cases.stream()
                 .filter(c -> c.when.test(t))
                 .findFirst()
-                .map(c -> c.then);
+                .map(c -> c.then.apply(t));
     }
 
     public When when(@NotNull Predicate<? super T> when) {
         return new When(when);
     }
 
-    public PatternMatching<T, U> otherwise(final U then) {
-        return new When(t -> true).then(then);
+    public PatternMatching<T, U> otherwise(final Function<T, U> f) {
+        return new When(t -> true).then(f);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public final class When {
         private final Predicate<? super T> when;
 
-        public PatternMatching<T, U> then(@NotNull final U then) {
-            cases.add(new Case(when, then));
+        public PatternMatching<T, U> then(@NotNull final Function<T, U> f) {
+            cases.add(new Case(when, f));
             return PatternMatching.this;
         }
     }
@@ -47,6 +47,6 @@ public class PatternMatching<T, U> implements Function<T, Optional<U>> {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class Case {
         private final Predicate<? super T> when;
-        private final U then;
+        private final Function<T, U> then;
     }
 }
