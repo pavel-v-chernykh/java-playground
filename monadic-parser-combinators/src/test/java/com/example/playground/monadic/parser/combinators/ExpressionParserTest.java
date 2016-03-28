@@ -129,20 +129,20 @@ final class ExpressionParsers {
         return result(BoolExpression.of(left, operator, right));
     }
 
-    public static Parser<Expression> inParenthesis(Parser<Expression> expression) {
-        return bracket(token(exact("(")), expression, token(exact(")")));
+    public static Parser<Expression> inParenthesisSimple() {
+        return input -> bracket(token(exact("(")), expression(), token(exact(")"))).parse(input);
     }
 
-    public static Parser<Expression> begin() {
-        return or(identifier(), inParenthesis(expression()), expression());
+    public static Parser<Expression> inParenthesisComplex() {
+        return input -> ternary(inParenthesisSimple(), operators(), expression(), ExpressionParsers::boolExpression).parse(input);
     }
 
-    public static Parser<Expression> end() {
-        return or(expression(), inParenthesis(expression()), identifier());
+    public static Parser<Expression> plainExpression() {
+        return input -> ternary(identifier(), operators(), expression(), ExpressionParsers::boolExpression).parse(input);
     }
 
     public static Parser<Expression> expression() {
-        return input -> ternary(begin(), operators(), end(), ExpressionParsers::boolExpression).parse(input);
+        return or(inParenthesisComplex(), inParenthesisSimple(), plainExpression(), identifier());
     }
 
     public static Parser<Expression> root() {
@@ -228,5 +228,33 @@ public class ExpressionParserTest {
         visitor.visit(parsedBoolExpression);
         assertThat(visitor.getEvaluationResult(), is(true));
         assertThat(root().parse("(e1 or e2) and e3 and e4"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
+    }
+
+    @Test
+    public void parseBooleanExpressionInParenthesisExpression() {
+        final BoolExpression parsedBoolExpression =
+                BoolExpression.of(
+                        Identifier.of("e1"),
+                        Operator.of("or"),
+                        Identifier.of("e2")
+                );
+        final HashMap<Identifier, Boolean> context = new HashMap<>();
+        context.put(Identifier.of("e1"), true);
+        context.put(Identifier.of("e2"), false);
+        final ExpressionEvaluatingVisitor visitor = new ExpressionEvaluatingVisitor(context);
+        visitor.visit(parsedBoolExpression);
+        assertThat(visitor.getEvaluationResult(), is(true));
+        assertThat(root().parse("(e1 or e2)"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
+    }
+
+    @Test
+    public void parseBooleanExpressionInParenthesisIdentifier() {
+        final Identifier parsedBoolExpression = Identifier.of("e1");
+        final HashMap<Identifier, Boolean> context = new HashMap<>();
+        context.put(Identifier.of("e1"), true);
+        final ExpressionEvaluatingVisitor visitor = new ExpressionEvaluatingVisitor(context);
+        visitor.visit(parsedBoolExpression);
+        assertThat(visitor.getEvaluationResult(), is(true));
+        assertThat(root().parse("(e1)"), is(equalTo(Parser.result(parsedBoolExpression, ""))));
     }
 }
